@@ -23,7 +23,10 @@ const assignmentSchema = new mongoose.Schema({
     type: String,
     enum: ["Morning", "Evening", "Night"],
     default: "Morning"
-  }
+  },
+  patrolStartedAt: {
+  type: Date
+}
 
 }, { timestamps: true });
 

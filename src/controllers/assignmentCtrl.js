@@ -41,3 +41,23 @@ exports.deleteAssignment = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+exports.startPatrol = async (req, res) => {
+  try {
+
+    const assignment = await Assignment.findById(req.params.id);
+
+    if (!assignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    assignment.patrolStartedAt = new Date();
+
+    await assignment.save();
+
+    res.json({ message: "Patrol started successfully" });
+
+  } catch (err) {
+    console.log("Start Patrol Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
