@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const assignmentCtrl = require("../controllers/assignmentCtrl");
 const {
   getAssignments,
   createAssignment,
