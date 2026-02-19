@@ -11,5 +11,6 @@ router.get("/", getAssignments);
 router.post("/", createAssignment);
 router.delete("/:id", deleteAssignment);
 router.patch("/:id/start", assignmentCtrl.startPatrol);
+router.get("/:id", assignmentCtrl.getAssignmentById);
 
 module.exports = router;

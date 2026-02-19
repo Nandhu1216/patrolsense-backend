@@ -61,3 +61,21 @@ exports.startPatrol = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+exports.getAssignmentById = async (req, res) => {
+  try {
+
+    const assignment = await Assignment.findById(req.params.id)
+      .populate("routeId")
+      .populate("guardId");
+
+    if (!assignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    res.json(assignment);
+
+  } catch (err) {
+    console.log("Fetch Assignment Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
