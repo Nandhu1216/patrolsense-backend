@@ -21,12 +21,26 @@ const assignmentSchema = new mongoose.Schema({
 
   shift: {
     type: String,
-    enum: ["Morning", "Evening", "Night"],
-    default: "Morning"
+    required: true
   },
-  patrolStartedAt: {
-  type: Date
-}
+
+  patrolStartedAt: Date,
+  patrolEndedAt: Date,
+  durationSeconds: Number,
+
+  status: {
+    type: String,
+    enum: ["pending", "started", "completed"],
+    default: "pending"
+  },
+
+  logs: [
+    {
+      lat: Number,
+      lng: Number,
+      timestamp: Date
+    }
+  ]
 
 }, { timestamps: true });
 
