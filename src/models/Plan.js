@@ -4,14 +4,16 @@ const planSchema = new mongoose.Schema({
 
   planName: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
 
   routes: [
     {
       routeId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Route"
+        ref: "Route",
+        required: true
       },
       routeName: String,
       order: Number

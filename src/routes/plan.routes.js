@@ -4,7 +4,7 @@ const router = express.Router();
 const Plan = require("../models/Plan");
 
 
-// ✅ CREATE PLAN
+// ================= CREATE PLAN =================
 router.post("/", async (req, res) => {
   try {
 
@@ -24,12 +24,13 @@ router.post("/", async (req, res) => {
     res.status(201).json(newPlan);
 
   } catch (err) {
-    res.status(500).json({ message: "Error creating plan" });
+    console.log("Create Plan Error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 
-// ✅ GET ALL PLANS
+// ================= GET ALL PLANS =================
 router.get("/", async (req, res) => {
   try {
 
@@ -38,21 +39,71 @@ router.get("/", async (req, res) => {
     res.json(plans);
 
   } catch (err) {
-    res.status(500).json({ message: "Error fetching plans" });
+    console.log("Fetch Plans Error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 
-// ✅ DELETE PLAN
+// ================= GET SINGLE PLAN =================
+router.get("/:id", async (req, res) => {
+  try {
+
+    const plan = await Plan.findById(req.params.id);
+
+    if (!plan) {
+      return res.status(404).json({ message: "Plan not found" });
+    }
+
+    res.json(plan);
+
+  } catch (err) {
+    console.log("Fetch Plan Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// ================= UPDATE PLAN =================
+router.put("/:id", async (req, res) => {
+  try {
+
+    const { planName, routes } = req.body;
+
+    const updatedPlan = await Plan.findByIdAndUpdate(
+      req.params.id,
+      { planName, routes },
+      { new: true }
+    );
+
+    if (!updatedPlan) {
+      return res.status(404).json({ message: "Plan not found" });
+    }
+
+    res.json(updatedPlan);
+
+  } catch (err) {
+    console.log("Update Plan Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// ================= DELETE PLAN =================
 router.delete("/:id", async (req, res) => {
   try {
 
-    await Plan.findByIdAndDelete(req.params.id);
+    const deleted = await Plan.findByIdAndDelete(req.params.id);
 
-    res.json({ message: "Plan deleted" });
+    if (!deleted) {
+      return res.status(404).json({ message: "Plan not found" });
+    }
+
+    res.json({ message: "Plan deleted successfully" });
 
   } catch (err) {
-    res.status(500).json({ message: "Error deleting plan" });
+    console.log("Delete Plan Error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
