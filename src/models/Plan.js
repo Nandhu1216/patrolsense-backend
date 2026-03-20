@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const planSchema = new mongoose.Schema({
 
@@ -13,10 +13,11 @@ const planSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Route"
       },
+      routeName: String,
       order: Number
     }
   ]
 
 }, { timestamps: true });
 
-export default mongoose.model("Plan", planSchema);
+module.exports = mongoose.model("Plan", planSchema);
