@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const Assignment = require("../models/Assignment");
-const Plan = require("../models/Plan");
-const Route = require("../models/Route");
+const Assignment = require("../models/assignment.model");
+const Plan = require("../models/plan.model");
+const Route = require("../models/route.model");
 
 // CREATE
 router.post("/", async (req, res) => {
