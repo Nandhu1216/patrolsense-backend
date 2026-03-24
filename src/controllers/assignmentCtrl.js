@@ -196,3 +196,62 @@ exports.completePatrol = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// GET ASSIGNMENTS BY GUARD (FOR APP)
+exports.getAssignmentsByGuard = async (req, res) => {
+  try {
+
+    const { guardId } = req.params;
+
+    const assignments = await Assignment.find({ guardId })
+      .populate("routeId", "routeName checkpoints")
+      .populate({
+        path: "planId",
+        populate: {
+          path: "routes.routeId",
+          select: "routeName checkpoints"
+        }
+      });
+
+    let allRoutes = [];
+
+    for (let a of assignments) {
+
+      // 🔹 SINGLE ROUTE
+      if (a.routeId) {
+        allRoutes.push({
+          _id: a.routeId._id,
+          routeName: a.routeId.routeName,
+          checkpoints: a.routeId.checkpoints,
+          order: 1,
+          status: "pending"
+        });
+      }
+
+      // 🔹 PLAN ROUTES
+      if (a.planId) {
+        const sorted = a.planId.routes.sort(
+          (x, y) => x.order - y.order
+        );
+
+        for (let r of sorted) {
+          allRoutes.push({
+            _id: r.routeId._id,
+            routeName: r.routeId.routeName,
+            checkpoints: r.routeId.checkpoints,
+            order: r.order,
+            status: r.status || "pending"
+          });
+        }
+      }
+    }
+
+    // 🔥 sort final
+    allRoutes.sort((a, b) => a.order - b.order);
+
+    res.json(allRoutes);
+
+  } catch (err) {
+    console.log("Guard Fetch Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

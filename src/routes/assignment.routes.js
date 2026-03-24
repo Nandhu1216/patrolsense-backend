@@ -50,8 +50,41 @@ router.post("/", async (req, res) => {
 
 // GET BY GUARD
 router.get("/:guardId", async (req, res) => {
-  const data = await Assignment.find({ guardId: req.params.guardId });
-  res.json(data);
+  try {
+
+    const assignments = await Assignment.find({
+      guardId: req.params.guardId
+    });
+
+    let allRoutes = [];
+
+    for (let a of assignments) {
+
+      for (let r of a.routes) {
+
+        const routeData = await Route.findById(r.routeId);
+
+        if (!routeData) continue;
+
+        allRoutes.push({
+          _id: routeData._id,
+          routeName: r.routeName,
+          order: r.order,
+          status: r.status,
+          checkpoints: routeData.checkpoints // 🔥 IMPORTANT
+        });
+      }
+    }
+
+    // 🔥 sort routes
+    allRoutes.sort((a, b) => a.order - b.order);
+
+    res.json(allRoutes);
+
+  } catch (err) {
+    console.log("Fetch Guard Routes Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 module.exports = router;
