@@ -4,43 +4,28 @@ const assignmentSchema = new mongoose.Schema({
 
   guardId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
+    ref: "User"
   },
 
-  routeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Route",
-    required: true
-  },
+  date: String,
+  shift: String,
 
-  date: {
-    type: String,
-    required: true
-  },
-
-  shift: {
-    type: String,
-    required: true
-  },
-
-  patrolStartedAt: Date,
-  patrolEndedAt: Date,
-  durationSeconds: Number,
-
-  status: {
-    type: String,
-    enum: ["pending", "started", "completed"],
-    default: "pending"
-  },
-
-  logs: [
+  routes: [
     {
-      lat: Number,
-      lng: Number,
-      timestamp: Date
+      routeId: mongoose.Schema.Types.ObjectId,
+      routeName: String,
+      order: Number,
+      status: {
+        type: String,
+        default: "pending"
+      }
     }
-  ]
+  ],
+
+  currentIndex: {
+    type: Number,
+    default: 0
+  }
 
 }, { timestamps: true });
 
