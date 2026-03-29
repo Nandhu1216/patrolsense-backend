@@ -78,30 +78,64 @@ exports.getAssignmentById = async (req, res) => {
 
 
 // CREATE ASSIGNMENT
+
+
 exports.createAssignment = async (req, res) => {
   try {
 
-    const { routeId, planId } = req.body;
+    const { guardId, date, shift, routeId, planId } = req.body;
 
-    // prevent both plan + route
+    // ❌ prevent both
     if (routeId && planId) {
       return res.status(400).json({
         message: "Assign either a route OR a plan"
       });
     }
 
-    const newAssignment = new Assignment(req.body);
+    let finalRoutes = [];
+
+    // 🔥 IF PLAN
+    if (planId) {
+      const plan = await Plan.findById(planId).populate("routes.routeId");
+
+      finalRoutes = plan.routes.map(r => ({
+        routeId: r.routeId._id,
+        routeName: r.routeId.routeName,
+        order: r.order,
+        status: "pending"
+      }));
+    }
+
+    // 🔥 IF SINGLE ROUTE
+    if (routeId) {
+      const route = await Route.findById(routeId);
+
+      finalRoutes = [{
+        routeId: route._id,
+        routeName: route.routeName,
+        order: 1,
+        status: "pending"
+      }];
+    }
+
+    // 🔥 CREATE WITH ROUTES ARRAY
+    const newAssignment = new Assignment({
+      guardId,
+      date,
+      shift,
+      routes: finalRoutes,   // ✅ IMPORTANT FIX
+      currentIndex: 0
+    });
 
     await newAssignment.save();
 
-    res.json({ message: "Assignment created" });
+    res.json(newAssignment);
 
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 
 // DELETE ASSIGNMENT
