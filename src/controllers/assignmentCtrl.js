@@ -98,17 +98,18 @@ exports.createAssignment = async (req, res) => {
 
     // 🔥 IF PLAN
     if (planId) {
-  const plan = await Plan.findById(planId).populate("routes.routeId");
+
+  const plan = await Plan.findById(planId);
 
   if (!plan) {
     return res.status(404).json({ message: "Plan not found" });
   }
 
-  console.log("PLAN DATA:", JSON.stringify(plan, null, 2));
+  console.log("PLAN:", plan);
 
   finalRoutes = plan.routes.map(r => ({
-    routeId: r.routeId?._id,
-    routeName: r.routeId?.routeName,
+    routeId: r.routeId,        // already stored
+    routeName: r.routeName,    // already stored ✅
     order: r.order,
     status: "pending"
   }));
