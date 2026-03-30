@@ -96,15 +96,17 @@ exports.createAssignment = async (req, res) => {
 
     // 🔥 IF PLAN
     if (planId) {
-      const plan = await Plan.findById(planId).populate("routes.routeId");
+  const plan = await Plan.findById(planId).populate("routes.routeId");
 
-      finalRoutes = plan.routes.map(r => ({
-        routeId: r.routeId._id,
-        routeName: r.routeId.routeName,
-        order: r.order,
-        status: "pending"
-      }));
-    }
+  console.log("PLAN DATA:", JSON.stringify(plan, null, 2));
+
+  finalRoutes = plan.routes.map(r => ({
+    routeId: r.routeId?._id,
+    routeName: r.routeId?.routeName,
+    order: r.order,
+    status: "pending"
+  }));
+}
 
     // 🔥 IF SINGLE ROUTE
     if (routeId) {
