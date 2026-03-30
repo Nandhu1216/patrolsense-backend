@@ -1,5 +1,6 @@
 const Assignment = require("../models/Assignment");
-
+const Plan = require("../models/Plan");
+const Route = require("../models/route");
 
 // GET ALL ASSIGNMENTS
 exports.getAssignments = async (req, res) => {
@@ -98,6 +99,10 @@ exports.createAssignment = async (req, res) => {
     // 🔥 IF PLAN
     if (planId) {
   const plan = await Plan.findById(planId).populate("routes.routeId");
+
+  if (!plan) {
+    return res.status(404).json({ message: "Plan not found" });
+  }
 
   console.log("PLAN DATA:", JSON.stringify(plan, null, 2));
 
