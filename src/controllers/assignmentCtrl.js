@@ -82,6 +82,7 @@ exports.getAssignmentById = async (req, res) => {
 
 exports.createAssignment = async (req, res) => {
   try {
+    console.log("🔥 CREATE ASSIGNMENT API HIT");
 
     const { guardId, date, shift, routeId, planId } = req.body;
 
