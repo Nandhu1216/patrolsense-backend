@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 const Assignment = require("../models/Assignment");
-const Plan = require("../models/Plan");
 const Route = require("../models/route");
 
 
@@ -12,60 +11,28 @@ const Route = require("../models/route");
 router.post("/", async (req, res) => {
   try {
 
-    console.log("🔥 CREATE ASSIGNMENT HIT");
+    const { guardId, date, shift, routes } = req.body;
 
-    const { guardId, date, shift, planId, routeId } = req.body;
-
-    // ❌ Prevent both
-    if (planId && routeId) {
-      return res.status(400).json({
-        message: "Assign either a plan OR a route"
-      });
+    if (!routes || routes.length === 0) {
+      return res.status(400).json({ message: "Routes required" });
     }
 
     let finalRoutes = [];
 
-    // ===============================
-    // 🔹 PLAN → EXPAND ROUTES
-    // ===============================
-    if (planId) {
-      const plan = await Plan.findById(planId);
+    for (let i = 0; i < routes.length; i++) {
 
-      if (!plan) {
-        return res.status(404).json({ message: "Plan not found" });
-      }
+      const route = await Route.findById(routes[i].routeId);
 
-      console.log("PLAN:", plan);
+      if (!route) continue;
 
-      finalRoutes = plan.routes.map(r => ({
-        routeId: r.routeId,
-        routeName: r.routeName, // already stored
-        order: r.order,
-        status: "pending"
-      }));
-    }
-
-    // ===============================
-    // 🔹 SINGLE ROUTE
-    // ===============================
-    if (routeId) {
-      const route = await Route.findById(routeId);
-
-      if (!route) {
-        return res.status(404).json({ message: "Route not found" });
-      }
-
-      finalRoutes = [{
+      finalRoutes.push({
         routeId: route._id,
         routeName: route.routeName,
-        order: 1,
+        order: i + 1,
         status: "pending"
-      }];
+      });
     }
 
-    // ===============================
-    // 🔥 SAVE ASSIGNMENT
-    // ===============================
     const newAssignment = new Assignment({
       guardId,
       date,
@@ -76,26 +43,24 @@ router.post("/", async (req, res) => {
 
     await newAssignment.save();
 
-    console.log("FINAL ROUTES SAVED:", finalRoutes);
-
     res.json(newAssignment);
 
   } catch (err) {
-    console.log("CREATE ERROR:", err);
+    console.log(err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 
 // ===============================
-// 🔥 GET ROUTES FOR GUARD (APP)
+// 🔥 GET ROUTES FOR GUARD
 // ===============================
 router.get("/:guardId", async (req, res) => {
   try {
 
-    const { guardId } = req.params;
-
-    const assignments = await Assignment.find({ guardId });
+    const assignments = await Assignment.find({
+      guardId: req.params.guardId
+    });
 
     let allRoutes = [];
 
@@ -111,22 +76,20 @@ router.get("/:guardId", async (req, res) => {
           _id: routeData._id,
           routeName: r.routeName,
           order: r.order,
-          status: r.status || "pending",
-          checkpoints: routeData.checkpoints // 🔥 needed for tracking
+          status: r.status,
+          checkpoints: routeData.checkpoints
         });
       }
     }
 
-    // 🔥 SORT ROUTES
     allRoutes.sort((a, b) => a.order - b.order);
 
     res.json(allRoutes);
 
   } catch (err) {
-    console.log("FETCH ERROR:", err);
+    console.log(err);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 module.exports = router;
