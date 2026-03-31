@@ -1,32 +1,34 @@
 const express = require("express");
 const router = express.Router();
-
 const Report = require("../models/Report");
 
-// SAVE REPORT
+// 🔥 SAVE REPORT
 router.post("/", async (req, res) => {
   try {
+    console.log("📥 REPORT RECEIVED:", req.body);
 
     const report = new Report(req.body);
     await report.save();
 
-    res.json({ message: "Report saved" });
-
+    res.json({ message: "Report saved successfully" });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" });
+    console.log("❌ SAVE ERROR:", err);
+    res.status(500).json({ message: "Error saving report" });
   }
 });
 
-// GET REPORTS (ADMIN)
+// 🔥 GET ALL REPORTS
 router.get("/", async (req, res) => {
   try {
+    const reports = await Report.find()
+      .populate("guardId", "name")
+      .populate("routeId", "routeName")
+      .sort({ createdAt: -1 });
 
-    const reports = await Report.find().sort({ createdAt: -1 });
     res.json(reports);
-
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.log("❌ FETCH ERROR:", err);
+    res.status(500).json({ message: "Error fetching reports" });
   }
 });
 
