@@ -1,12 +1,21 @@
 const mongoose = require("mongoose");
 
 const routeSchema = new mongoose.Schema({
-  routeName: String,
+  routeName: {
+    type: String,
+    required: true
+  },
 
   checkpoints: [
     {
-      lat: Number,
-      lng: Number
+      lat: {
+        type: Number,
+        required: true
+      },
+      lng: {
+        type: Number,
+        required: true
+      }
     }
   ],
 

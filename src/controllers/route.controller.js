@@ -3,14 +3,48 @@ const Route = require("../models/route");
 // CREATE ROUTE
 exports.createRoute = async (req, res) => {
   try {
-    const route = new Route(req.body);
+
+    const { routeName, checkpoints } = req.body;
+
+    if (!routeName) {
+      return res.status(400).json({
+        message: "Route name required"
+      });
+    }
+
+    if (!checkpoints || checkpoints.length === 0) {
+      return res.status(400).json({
+        message: "Checkpoints required"
+      });
+    }
+
+    // 🔥 CLEAN CHECKPOINTS (MAIN FIX)
+    const cleanedCheckpoints = checkpoints.filter(cp =>
+      cp && cp.lat && cp.lng
+    );
+
+    if (cleanedCheckpoints.length === 0) {
+      return res.status(400).json({
+        message: "Valid checkpoints required"
+      });
+    }
+
+    const route = new Route({
+      routeName,
+      checkpoints: cleanedCheckpoints
+    });
+
     await route.save();
 
+    console.log("✅ Route Created:", route);
+
     res.json(route);
+
   } catch (err) {
+    console.log("❌ ROUTE CREATE ERROR:", err);
     res.status(500).json({ message: "Error saving route" });
   }
-};
+}; 
 
 // GET ALL ROUTES
 exports.getRoutes = async (req, res) => {
