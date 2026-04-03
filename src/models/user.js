@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["superadmin", "supervisor", "guard"],
     default: "guard"
+  },
+
+  phone: {
+    type: String,
+    required: true // ✅ NEW FIELD
   }
 });
 
@@ -34,6 +39,5 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 
 });
-
 
 module.exports = mongoose.model("User", userSchema);

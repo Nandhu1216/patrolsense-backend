@@ -10,13 +10,24 @@ exports.getUsers = async (req, res) => {
   }
 };
 
+
 // CREATE USER
 exports.createUser = async (req, res) => {
   try {
 
-    console.log("REQ BODY:", req.body); // ⭐ ADD
+    console.log("REQ BODY:", req.body);
 
-    const { name, employeeId, password, role } = req.body;
+    const { name, employeeId, password, role, phone } = req.body;
+
+    // ✅ Validation
+    if (!name || !employeeId || !password || !phone) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    // ✅ Phone format check
+    if (!phone.startsWith("+91")) {
+      return res.status(400).json({ message: "Phone must start with +91" });
+    }
 
     const exists = await User.findOne({ employeeId });
     if (exists) {
@@ -27,7 +38,8 @@ exports.createUser = async (req, res) => {
       name,
       employeeId,
       password,
-      role
+      role,
+      phone // ✅ ADDED
     });
 
     await newUser.save();
@@ -35,7 +47,7 @@ exports.createUser = async (req, res) => {
     res.json({ message: "User created" });
 
   } catch (err) {
-    console.log("CREATE USER ERROR:", err); // ⭐ VERY IMPORTANT
+    console.log("CREATE USER ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
