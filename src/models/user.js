@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: true // ✅ NEW FIELD
+  },
+  deviceToken: {
+    type: String,
+    default: null
   }
 });
 
