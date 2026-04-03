@@ -64,3 +64,45 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// ✅ SAVE DEVICE TOKEN (LOGIN)
+exports.saveToken = async (req, res) => {
+  try {
+    const { guardId, deviceToken } = req.body;
+
+    if (!guardId || !deviceToken) {
+      return res.status(400).json({ message: "Missing data" });
+    }
+
+    await User.findByIdAndUpdate(guardId, {
+      deviceToken
+    });
+
+    console.log("✅ Token saved:", deviceToken);
+
+    res.json({ message: "Token saved" });
+
+  } catch (err) {
+    console.log("SAVE TOKEN ERROR:", err);
+    res.status(500).json({ message: "Error saving token" });
+  }
+};
+
+
+// ✅ REMOVE DEVICE TOKEN (LOGOUT)
+exports.removeToken = async (req, res) => {
+  try {
+    const { guardId } = req.body;
+
+    await User.findByIdAndUpdate(guardId, {
+      deviceToken: null
+    });
+
+    console.log("🗑️ Token removed");
+
+    res.json({ message: "Token removed" });
+
+  } catch (err) {
+    console.log("REMOVE TOKEN ERROR:", err);
+    res.status(500).json({ message: "Error removing token" });
+  }
+};

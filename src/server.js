@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
-
+const sendSMS = require("./utils/sms");
 dotenv.config();
 connectDB();
 
@@ -13,6 +13,15 @@ app.use(express.json());
 // Test route
 app.get("/", (req, res) => {
     res.send("PatrolSense Backend Running");
+});
+app.get("/test-sms", async (req, res) => {
+
+  await sendSMS(
+  "+918300435874",
+  "🚨 PatrolSense SMS working via Fast2SMS"
+);
+
+  res.send("SMS sent");
 });
 
 // Routes
