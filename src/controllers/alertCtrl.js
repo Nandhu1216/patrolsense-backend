@@ -1,3 +1,6 @@
+const express = require("express");
+const router = express.Router();
+
 const User = require("../models/user");
 
 router.post("/", async (req, res) => {
@@ -6,22 +9,24 @@ router.post("/", async (req, res) => {
 
     console.log("🚨 ALERT FROM:", guardId);
 
-    // ❌ EXCLUDE THIS GUARD
+    // ❌ EXCLUDE CURRENT GUARD
     const users = await User.find({
       _id: { $ne: guardId }
     });
 
-    console.log("📲 SEND ALERT TO:", users.length, "users");
+    console.log("📲 USERS TO ALERT:", users.length);
 
-    // 👉 FOR NOW just log (later we add Firebase)
     users.forEach(user => {
-      console.log("SEND TO:", user.phone);
+      console.log("➡️ SEND ALERT TO:", user.name, user.phone);
+      console.log("User:",user._id.toString());
     });
 
     res.json({ success: true });
 
   } catch (err) {
     console.log("❌ ALERT ERROR:", err);
-    res.status(500).json({ message: "Error sending alert" });
+    res.status(500).json({ message: "Alert failed" });
   }
 });
+
+module.exports = router;
