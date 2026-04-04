@@ -1,38 +1,40 @@
-const express = require("express");
-const router = express.Router();
-const mongoose = require("mongoose");
 const User = require("../models/user");
+const mongoose = require("mongoose");
 
-router.post("/", async (req, res) => {
+exports.sendAlert = async (req, res) => {
   try {
-
     const { guardId, message, location, mapLink } = req.body;
 
-    console.log("🚨 ALERT RECEIVED");
+    console.log("🚨 ALERT TRIGGERED");
     console.log("🆔 Guard:", guardId);
     console.log("📩 Message:", message);
     console.log("📍 Location:", location);
-    console.log("🗺 Map Link:", mapLink);
+    console.log("🗺 Map:", mapLink);
 
-    // ✅ SEND TO OTHER USERS ONLY
+    // ✅ GET ALL USERS EXCEPT CURRENT GUARD
     const users = await User.find({
       _id: { $ne: new mongoose.Types.ObjectId(guardId) }
     });
 
-    console.log("📲 SEND TO USERS:", users.length);
+    // 📞 PHONE NUMBERS
+    const phoneNumbers = users.map(user => user.phone);
 
+    console.log("📞 PHONE LIST:", phoneNumbers);
+
+    // 🔥 SIMULATE ALERT (later replace with Firebase)
     users.forEach(user => {
-      console.log("➡️ ALERT TO:", user._id.toString());
-
-      // 👉 later: send Firebase here
+      console.log(`🚨 Alert sent to ${user.phone}`);
+      console.log(`➡️ ${message}`);
+      console.log(`📍 ${mapLink}`);
     });
 
-    res.json({ success: true });
+    res.json({
+      success: true,
+      totalUsers: phoneNumbers.length
+    });
 
   } catch (err) {
     console.log("❌ ALERT ERROR:", err);
-    res.status(500).json({ message: "Error sending alert" });
+    res.status(500).json({ message: "Server error" });
   }
-});
-
-module.exports = router;
+};
