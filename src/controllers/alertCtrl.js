@@ -1,37 +1,33 @@
-const express = require("express");
-const router = express.Router();
-const mongoose = require("mongoose");
-
 const User = require("../models/user");
 
-router.post("/", async (req, res) => {
+exports.sendAlert = async (req, res) => {
   try {
-    console.log("🚀 ALERT ROUTE HIT");
+    const { message } = req.body;
 
-    const { guardId, message } = req.body;
+    console.log("🚨 ALERT TRIGGERED:", message);
 
-    if (!guardId) {
-      return res.status(400).json({ message: "guardId missing" });
-    }
-
-    console.log("🚨 ALERT FROM:", guardId);
-
+    // 🔥 GET ALL USERS (guards + supervisors)
     const users = await User.find({
-      _id: { $ne: new mongoose.Types.ObjectId(guardId) }
+      role: { $in: ["guard", "supervisor"] }
     });
 
-    console.log("📲 USERS TO ALERT:", users.length);
+    // 📞 GET PHONE NUMBERS
+    const phoneNumbers = users.map(user => user.phone);
 
-    users.forEach(user => {
-      console.log("USER:", user._id.toString());
+    console.log("📞 PHONE LIST:", phoneNumbers);
+
+    // 🔥 SIMULATE ALERT
+    phoneNumbers.forEach(num => {
+      console.log(`🚨 Alert sent to ${num}: ${message}`);
     });
 
-    res.json({ success: true });
+    res.json({
+      success: true,
+      totalUsers: phoneNumbers.length
+    });
 
   } catch (err) {
     console.log("❌ ALERT ERROR:", err);
-    res.status(500).json({ message: "Alert failed" });
+    res.status(500).json({ message: "Server error" });
   }
-});
-
-module.exports = router;
+};
